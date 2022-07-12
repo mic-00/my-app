@@ -17,30 +17,12 @@ class SurveyCardList extends React.Component {
 
     componentDidMount() {
         storePromise.then(function (store) {
-            let surveys = [];
-            store.getState().title.forEach(function (x, i) {
-                surveys.push({
-                    title: store.getState().title[i],
-                    description: store.getState().description[i],
-                    category: store.getState().category[i],
-                    image: store.getState().image[i]
-                });
-            });
             this.setState({
-                surveys: surveys
+                surveys: store.getState().surveys.filter(s => !this.props.category || s.category === this.props.category)
             });
             this.subscribe = store.subscribe(() => {
-                let surveys = [];
-                store.getState().title.forEach(function (x, i) {
-                    surveys.push({
-                        title: store.getState().title[i],
-                        description: store.getState().description[i],
-                        category: store.getState().category[i],
-                        image: store.getState().image[i]
-                    });
-                });
                 this.setState({
-                    surveys: surveys
+                    surveys: store.getState().surveys.filter(s => !this.props.category || s.category === this.props.category)
                 });
             });
             this.newSurvey = function () {
@@ -58,7 +40,12 @@ class SurveyCardList extends React.Component {
             }
             this.setImage = function (file, title) {
                 firebaseConnection.addImage(file, title).then((url) =>
-                    store.dispatch({type: 'ADD_IMAGE', payload: {url: url}})
+                    store.dispatch({type: 'ADD_IMAGE', payload: {title: title, url: url}})
+                );
+            }
+            this.removeSurvey = function (title) {
+                firebaseConnection.deleteSurvey(title).then(() =>
+                    store.dispatch({type: 'REMOVE', payload: {title: title}})
                 );
             }
         }.bind(this));
@@ -68,17 +55,13 @@ class SurveyCardList extends React.Component {
         return this.state.surveys.filter((s) => s.title === title);
     }
 
-    removeSurvey(title) {
-
-    }
-
     render() {
         const surveys = this.state.surveys.map((s) =>
             <SurveyCard
                 category={this.props.category}
                 description={s.description}
                 key={s.title}
-                onImageDrop={(file) => {this.setImage(file, s.title)}}
+                onImageDrop={(file) => {console.log(file); this.setImage(file, s.title)}}
                 onRemove={() => {this.removeSurvey(s.title);}}
                 onTitleChange={(title) => {
                     if (this.getByTitle(title).length === 0) {
@@ -87,7 +70,7 @@ class SurveyCardList extends React.Component {
                         alert('Scegli un nome diverso.');
                     }
                 }}
-                src={s.src}
+                src={s.image}
                 title={s.title}
             />
         )

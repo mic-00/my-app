@@ -4,28 +4,33 @@ import FirebaseConnection from "./FirebaseConnection";
 const firebaseConnection = new FirebaseConnection();
 
 const storePromise = firebaseConnection.getSurveys().then(function (surveys) {
-    const initialState = {
-        title: surveys.title,
-        description: surveys.description,
-        category: surveys.category,
-        image: surveys.image
-    };
+    const initialState = surveys;
     const reducer = function (state = initialState, action) {
         switch (action.type) {
             case 'ADD': {
                 return {
                     ...state,
-                    title: [...state.title, action.payload.title],
-                    description: [...state.description, action.payload.description],
-                    category: [...state.category, action.payload.category],
-                    image: [...state.image, null]
+                    surveys: [...state.surveys, {
+                        title: action.payload.title,
+                        description: action.payload.description,
+                        category: action.payload.category,
+                        image: null
+                    }]
                 };
             }
             case 'ADD_IMAGE': {
-                //const survey = state.surveys.find((s) => s.title === action.payload.title);
+                const surveysCopy = state.surveys.map(s => {return {...s}});
+                surveysCopy.find((s) => s.title === action.payload.title).image = action.payload.url;
                 return {
                     ...state,
-                    image: [...state.image, action.payload.url]
+                    surveys: surveysCopy
+                };
+            }
+            case 'REMOVE': {
+                const surveysCopy = state.surveys.map(s => {return {...s}}).filter((s) => s.title !== action.payload.title);
+                return {
+                    ...state,
+                    surveys: surveysCopy
                 };
             }
             default:

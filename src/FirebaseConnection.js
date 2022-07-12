@@ -20,10 +20,10 @@ export default class FirebaseConnection {
         this.storage = getStorage();
 
         this.docRefs = {};
-        this.setDocRefs();
+        this.initDocRefs();
     }
 
-    setDocRefs() {
+    initDocRefs() {
         let docRefsTemp = this.docRefs;
         getDocs(query(collection(this.db, 'surveys'))).then(function (querySnapshot) {
             querySnapshot.docs.forEach(doc => {
@@ -38,14 +38,10 @@ export default class FirebaseConnection {
         const querySurveys = query(collection(this.db, 'surveys'));
         return getDocs(querySurveys).then(function (querySnapshot) {
             let surveys = {
-                title: [],
-                description: [],
-                category: [],
-                image: []
+                surveys: []
             }
             //chain of promises
             const nextPromise = (promises, i) => {
-                console.log(surveys);
                 if (i < querySnapshot.docs.length) {
                     return promises[i].then(() => nextPromise(promises, ++i));
                 } else {
@@ -55,13 +51,12 @@ export default class FirebaseConnection {
             return nextPromise(
                 querySnapshot.docs.map(function (doc) {
                     return getImage(doc.data().title).then(function(url) {
-                        surveys = {
-                            ...surveys,
-                            title: [...surveys.title, doc.data().title],
-                            description: [...surveys.description, doc.data().description],
-                            category: [...surveys.category, doc.data().category],
-                            image: [...surveys.image, url]
-                        };
+                        surveys.surveys.push({
+                                title: doc.data().title,
+                                description: doc.data().description,
+                                category: doc.data().category,
+                                image: url
+                            });
                         return surveys;
                     });
                 }),
@@ -71,8 +66,8 @@ export default class FirebaseConnection {
     }
 
     getImage(title) {
-        const storageRef = ref(this.storage, 'logo.png');
-        return getDownloadURL(storageRef);
+        const storageRef = ref(this.storage, `${title}.png`);
+        return getDownloadURL(storageRef).catch(() => null);
     }
 
     addSurvey(survey) {
@@ -84,11 +79,13 @@ export default class FirebaseConnection {
     }
 
     addImage(file, title) {
-        const storageRef = ref(this.storage, `${title}.png`);
+        const getImage = this.getImage.bind(this);
+        const storageRef = ref(this.storage, `images/${title}.png`);
         const docRefsTemp = this.docRefs;
         return uploadBytes(storageRef, file).then(function (uploadResult) {
-            return getDownloadURL(storageRef).then(function (url) {
-                return updateDoc(docRefsTemp[title], {src: url}).then(url => url)
+            return getImage(title).then(function (url) {
+                updateDoc(docRefsTemp[title], {image: url});
+                return url;
             });
         });
     }
@@ -98,7 +95,7 @@ export default class FirebaseConnection {
             collection(this.db, 'surveys'),
             where('title', '==', title)
         );
-        getDocs(q).then(function (querySnapshot) {
+        return getDocs(q).then(function (querySnapshot) {
             querySnapshot.forEach((doc) => deleteDoc(doc.ref))
         })
     }

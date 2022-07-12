@@ -22,7 +22,11 @@ class SurveyCard extends React.Component {
                 listType="picture-card"
                 maxCount={1}
                 multiple={false}
-                onChange={(file) => this.props.onImageDrop(file)}
+                onChange={(file) => {
+                    const reader = new FileReader();
+                    reader.readAsText(file.file.originFileObj);
+                    reader.onload = (e) => this.props.onImageDrop(e.target.result);
+                }}
             >
                 <div style={{height: '220px', padding: '30%'}}>
                     <PlusOutlined />
