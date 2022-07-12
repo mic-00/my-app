@@ -1,0 +1,24 @@
+h1.title-1, h2.title-2, h3.title-3 {
+    color: white;
+}
+
+.my-sider {
+    border-right: .25em solid lightgray;
+}
+
+#my-sider-title {
+    margin: 1em;
+}
+
+.my-header {
+    height: auto;
+    padding: 0;
+}
+
+.surveys {
+    padding: 1em;
+}
+
+.survey-cat, .survey-desc {
+    display: block;
+}
