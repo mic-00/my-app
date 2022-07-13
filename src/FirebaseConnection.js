@@ -1,7 +1,7 @@
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
-import {addDoc, collection, deleteDoc, getDoc, getDocs, query, updateDoc, where} from 'firebase/firestore';
+import {addDoc, collection, deleteDoc, getDocs, query, updateDoc} from 'firebase/firestore';
 import {getStorage, getDownloadURL, ref, uploadBytes} from 'firebase/storage';
 
 export default class FirebaseConnection {
@@ -24,11 +24,10 @@ export default class FirebaseConnection {
     }
 
     initDocRefs() {
-        let docRefsTemp = this.docRefs;
-        getDocs(query(collection(this.db, 'surveys'))).then(function (querySnapshot) {
+        getDocs(query(collection(this.db, 'surveys'))).then((querySnapshot) => {
             querySnapshot.docs.forEach(doc => {
                 const title = doc.data().title;
-                docRefsTemp[title] = doc.ref;
+                this.docRefs[title] = doc.ref;
             });
         });
     }
@@ -49,9 +48,10 @@ export default class FirebaseConnection {
                 }
             };
             return nextPromise(
-                querySnapshot.docs.map(function (doc) {
+                querySnapshot.docs.map(function (doc, i) {
                     return getImage(doc.data().title).then(function(url) {
                         surveys.surveys.push({
+                                id: i,
                                 title: doc.data().title,
                                 description: doc.data().description,
                                 category: doc.data().category,
@@ -71,36 +71,40 @@ export default class FirebaseConnection {
     }
 
     addSurvey(survey) {
-        let docRefsTemp = this.docRefs;
-        return addDoc(collection(this.db, 'surveys'), survey).then(function (ref) {
-            docRefsTemp[survey.title] = ref;
-            return ref;
-        });
-    }
-
-    addImage(file, title) {
-        const getImage = this.getImage.bind(this);
-        const storageRef = ref(this.storage, `images/${title}.png`);
-        const docRefsTemp = this.docRefs;
-        return uploadBytes(storageRef, file).then(function (uploadResult) {
-            return getImage(title).then(function (url) {
-                updateDoc(docRefsTemp[title], {image: url});
-                return url;
+        return addDoc(collection(this.db, 'surveys'), survey)
+            .then((ref) => {
+                this.docRefs[survey.title] = ref;
+                return ref;
             });
-        });
     }
 
-    deleteSurvey(title, success) {
-        const q = query(
-            collection(this.db, 'surveys'),
-            where('title', '==', title)
-        );
-        return getDocs(q).then(function (querySnapshot) {
-            querySnapshot.forEach((doc) => deleteDoc(doc.ref))
-        })
+    setImage(file, title) {
+        const storageRef = ref(this.storage, `images/${title}.png`);
+        return uploadBytes(storageRef, file)
+            .then(() =>
+                this.getImage(title)
+                    .then((url) => {
+                        updateDoc(this.docRefs[title], {image: url});
+                        return url;
+                    })
+            );
     }
-    /*
-    updateSurvey(survey, success) {
-        updateDoc(doc())
-    }*/
+
+    deleteSurvey(title) {
+        return deleteDoc(this.docRefs[title])
+            .then(() => delete this.docRefs[title]);
+    }
+
+    setTitle(oldTitle, title) {
+        return updateDoc(this.docRefs[oldTitle], {title});
+    }
+
+    setCategory(title, category) {
+        return updateDoc(this.docRefs[title], {category});
+    }
+
+    setDescription(title, description) {
+        return updateDoc(this.docRefs[title], {description});
+    }
+
 }

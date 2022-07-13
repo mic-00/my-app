@@ -14,7 +14,7 @@ class NewSurvey extends React.Component {
         >
             <Button
                 icon={<PlusCircleOutlined />}
-                onClick={this.props.onClick}
+                onClick={() => this.props.onAdd()}
                 style={{
                     width: '100%',
                     padding: '100% 0'
