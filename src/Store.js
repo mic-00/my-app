@@ -6,6 +6,7 @@ const firebaseConnection = new FirebaseConnection();
 const storePromise = firebaseConnection.getSurveys().then(function (surveys) {
     const initialState = surveys;
     const reducer = function (state = initialState, action) {
+        let surveysCopy = state.surveys.map(s => {return {...s}});
         switch (action.type) {
             case 'ADD': {
                 return {
@@ -14,43 +15,41 @@ const storePromise = firebaseConnection.getSurveys().then(function (surveys) {
                         title: action.payload.title,
                         description: action.payload.description,
                         category: action.payload.category,
-                        image: null
+                        image: null,
+                        questions: []
                     }]
                 };
             }
-            case 'REMOVE': {
-                const surveysCopy = state.surveys
-                    .map(s => {return {...s}})
-                    .filter((s) => s.title !== action.payload.title);
+            case 'REMOVE':
+                surveysCopy = surveysCopy.filter((s) => s.title !== action.payload.title);
                 return {
                     ...state,
                     surveys: surveysCopy
                 };
-            }
-            case 'SET_TITLE': {
-                const surveysCopy = state.surveys.map(s => {return {...s}});
+            case 'SET_TITLE':
                 surveysCopy.find((s) => s.title === action.payload.oldTitle).title = action.payload.title;
                 return {
                     ...state,
                     surveys: surveysCopy
                 };
-            }
-            case 'SET_DESC' : {
-                const surveysCopy = state.surveys.map(s => {return {...s}});
-                surveysCopy.find((s) => s.title === action.payload.title).description= action.payload.description;
+            case 'SET_DESC' :
+                surveysCopy.find((s) => s.title === action.payload.title).description = action.payload.description;
                 return {
                     ...state,
                     surveys: surveysCopy
                 };
-            }
-            case 'SET_IMAGE': {
-                const surveysCopy = state.surveys.map(s => {return {...s}});
+            case 'SET_IMAGE':
                 surveysCopy.find((s) => s.title === action.payload.title).image = action.payload.url;
                 return {
                     ...state,
                     surveys: surveysCopy
                 };
-            }
+            case 'SET_QUESTIONS':
+                surveysCopy.find((s) => s.title === action.payload.title).questions = action.payload.questions;
+                return {
+                    ...state,
+                    surveys: surveysCopy
+                };
             default:
                 return state;
         }

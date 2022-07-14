@@ -8,7 +8,7 @@ class SurveyCardList extends React.Component {
         const surveys = this.props.surveys.map((s, i) =>
             <SurveyCard
                 key={i}
-                category={s.category === this.props.category ? null : s.category}
+                category={s.category}
                 description={s.description}
                 src={s.image}
                 title={s.title}

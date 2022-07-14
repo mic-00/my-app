@@ -11,7 +11,11 @@ class SurveyPage extends React.Component {
             <MyHeader title={this.props.title} subtitle={this.props.category} />
             <Content>
                 {this.props.description}
-                <Survey questions={this.props.questions} />
+                <Survey
+                    title={this.props.title}
+                    questions={this.props.questions}
+                    onAddQuestion={this.props.onAddQuestion}
+                />
             </Content>
         </Layout>
     }

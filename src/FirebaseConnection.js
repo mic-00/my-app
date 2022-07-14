@@ -55,7 +55,8 @@ export default class FirebaseConnection {
                                 title: doc.data().title,
                                 description: doc.data().description,
                                 category: doc.data().category,
-                                image: url
+                                image: url,
+                                questions: doc.data().questions
                             });
                         return surveys;
                     });
@@ -105,6 +106,10 @@ export default class FirebaseConnection {
 
     setDescription(title, description) {
         return updateDoc(this.docRefs[title], {description});
+    }
+
+    setQuestions(title, questions) {
+        return updateDoc(this.docRefs[title], {questions});
     }
 
 }

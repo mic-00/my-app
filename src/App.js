@@ -31,12 +31,13 @@ class App extends React.Component {
                 });
                 this.addSurvey = () => {
                     let i = 0;
-                    while (this.getByTitle(`New survey #${i}`).length !== 0) i++;
+                    while (this.getByTitle(`New survey #${i}`)) i++;
                     const survey = {
                         category: 'Nessuna',
                         description: 'Descrizione',
                         src: null,
-                        title: `New survey #${i}`
+                        title: `New survey #${i}`,
+                        questions: []
                     }
                     firebaseConnection.addSurvey(survey).then(() =>
                         store.dispatch({type: 'ADD', payload: survey})
@@ -61,11 +62,17 @@ class App extends React.Component {
                     firebaseConnection.setCategory(title, category).then(() =>
                         store.dispatch({type: 'SET_DESC', payload: {title, category}})
                     );
-                }
+                };
+                this.setQuestions = (title, question) => {
+                    const questions = [...this.getByTitle(title).questions, question];
+                    firebaseConnection.setQuestions(title, questions).then(() =>
+                        store.dispatch({type: 'SET_QUESTIONS', payload: {title, questions}})
+                    );
+                };
             });
     }
     getByTitle(title) {
-        return this.state.surveys.filter((s) => s.title === title);
+        return this.state.surveys.find((s) => s.title === title);
     }
 
     render() {
@@ -81,6 +88,7 @@ class App extends React.Component {
                             onCategoryChange={this.setCategory}
                             onRemove={this.removeSurvey}
                             onAdd={this.addSurvey}
+                            onAddQuestion={this.setQuestions}
                         />
                    }
             />
@@ -88,7 +96,13 @@ class App extends React.Component {
         const routeSurveys = this.state.surveys.map((s, i) =>
             <Route key={i}
                    path={`/categories/${s.category}/${s.id}`}
-                   element={<SurveyPage title={s.title} category={s.category} description={s.description} questions={s.questions} />}
+                   element={<SurveyPage
+                       title={s.title}
+                       category={s.category}
+                       description={s.description}
+                       questions={s.questions}
+                       onAddQuestion={this.setQuestions}
+                   />}
             />
         );
         return <BrowserRouter>

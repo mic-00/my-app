@@ -16,7 +16,7 @@ class MySider extends React.Component {
                 </Menu.Item>
                 <Menu.Item key={1}>
                     <Link to="./categories" />
-                    Categorie
+                    Categories
                 </Menu.Item>
             </Menu>
         </Sider>

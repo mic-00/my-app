@@ -11,10 +11,9 @@ class SurveyListPage extends React.Component {
             <MyHeader title={this.props.category} />
             <Content>
                 <Menu mode="horizontal">
-                    <Menu.SubMenu key={5} title="Visualizza">
-                        <Menu.Item key={6}>Data di caricamento</Menu.Item>
-                        <Menu.Item key={7}>Descrizione</Menu.Item>
-                        <Menu.Item key={8}>Luogo</Menu.Item>
+                    <Menu.SubMenu key={5} title="Show">
+                        <Menu.Item key={6}>Date</Menu.Item>
+                        <Menu.Item key={7}>Description</Menu.Item>
                     </Menu.SubMenu>
                 </Menu>
                 <SurveyCardList

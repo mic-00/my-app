@@ -20,7 +20,7 @@ class NewSurvey extends React.Component {
                     padding: '100% 0'
                 }}
             >
-                Crea nuova
+                New
             </Button>
         </Card>
     }

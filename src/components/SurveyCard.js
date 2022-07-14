@@ -26,7 +26,7 @@ class SurveyCard extends React.Component {
             >
                 <div style={{height: '220px', padding: '30%'}}>
                     <PlusOutlined />
-                    <div>Aggiungi un'immagine</div>
+                    <div>Add an image</div>
                 </div>
             </Dragger>;
 
@@ -38,9 +38,11 @@ class SurveyCard extends React.Component {
                     onClick={() => this.props.onRemove(this.props.title)}
                     shape='round'
                 >
-                    Elimina
+                    Delete
                 </Button>,
-                <Link to={`/categories/${this.props.category}/${this.props.surveyId}`}><Button>Modifica</Button></Link>
+                <Link to={`/categories/${this.props.category}/${this.props.surveyId}`}>
+                    <Button>Edit</Button>
+                </Link>
             ]}
             cover={cover}
             hoverable={true}
