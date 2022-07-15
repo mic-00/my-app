@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, Form, Input, Radio, Select} from "antd";
+import {Button, Checkbox, Form, Input, Radio, Select} from "antd";
 
 const {Option} = Select;
 const {Group} = Radio;
@@ -9,77 +9,110 @@ class NewQuestion extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            title: '',
             inputType: 'number',
-            name: 'newQuestion',
             value: [],
             label: []
         };
     }
-    render() {
-        let input;
+
+    createInput() {
         switch (this.state.inputType) {
             case 'number':
-                input = <Input
-                    type="text"
-                    value={this.state.value[0]}
-                    onChange={(e) => this.setState({
-                        value: [e.target.value]
-                    })}
-                    style={{width: 120}}
-                    addonAfter={<Input
-                        type="text"
-                        onChange={(e) => this.setState({
-                            label: [e.target.value]
-                        })}
-                    />}
-                />;
-                break;
-            case 'radio' :
-                const radios = this.state.value.map((v, i) => {
-                    const l = this.state.label[i];
-                    return <Radio key={i} value={v}>
-                        <Input type="text" value={l} onChange={(e) => {
-                            const stateTemp = {...this.state};
-                            stateTemp.label[i] = e.target.value;
-                            this.setState(stateTemp);
-                        }}/>
-                    </Radio>
+                return <Input type="number"/>
+            case 'radio':
+                return <Group>
+                    {this.state.label.map((l, i) =>
+                        <Radio key={i} value={i}>
+                            <Input
+                                type="text"
+                                value={l}
+                                onChange={(e) => {
+                                    const label = [...this.state.label];
+                                    label[i] = e.target.value;
+                                    this.setState({label});
+                                }}
+                            />
+                        </Radio>
+                    )}
+                </Group>;
+            case 'checkbox':
+                const options = [];
+                this.state.label.forEach((l, i) => {
+                    const v = this.state.value[i];
+                    options.push({
+                        value: v,
+                        label: <Input
+                            type="text"
+                            value={l}
+                            onChange={(e) => {
+                                const label = [...this.state.label];
+                                label[i] = e.target.value;
+                                this.setState({label});
+                            }}
+                        />
+                    });
                 });
-                input = <div>
-                    <Item><Group value={this.state.value[0]}>
-                        {radios}
-                    </Group></Item>
-                    <Item><Button onClick={() => this.setState({
-                        value: [...this.state.value, this.state.value.length],
-                        label: [...this.state.label, 'New option']
-                    })}>
-                        Aggiungi opzione
-                    </Button></Item>
-                </div>
-                break;
-            case 'select':
-                break;
-            case 'slider:':
-                break;
-            case 'time':
-                break;
+                return <Checkbox.Group options={options} />;
         }
+        return null;
+    }
+
+    render() {
         return <div>
-            <Item><Input type="text" onChange={((e) => this.setState({
-                title: e.target.value
-            }))} /></Item>
-            <Item><Select defaultValue="number"
+            <Item>
+                <Input type="text" onChange={(e) => {
+                    this.setState({
+                        title: e.target.value
+                    });
+                }} />
+            </Item>
+            <Item>
+                <Select
+                    defaultValue="number"
+                    value={this.state.inputType}
                     style={{width: 120}}
-                    onSelect={(value) => this.setState({inputType: value})}
-            >
-                <Option value="number">Number</Option>
-                <Option value="radio">Radio button</Option>
-                <Option value="select">Select</Option>
-                <Option value="slider">Slider</Option>
-                <Option value="time">Time</Option>
-            </Select></Item>
-            {input}
-            <Item><Button onClick={() => this.props.onAddQuestion(this.props.title, this.state)}>Confirm</Button></Item>
+                    onSelect={(value) => {
+                        this.setState({
+                            inputType: value
+                        });
+                    }}
+                >
+                    <Option value="number">Number</Option>
+                    <Option value="radio">Radio button</Option>
+                    <Option value="checkbox">Checkbox</Option>
+                    <Option value="slider">Slider</Option>
+                    <Option value="time">Time</Option>
+                </Select>
+            </Item>
+            <Item>{this.createInput()}</Item>
+            <Item>
+                {this.state.inputType === 'radio' || this.state.inputType === 'checkbox' ?
+                    <Button onClick={() => {
+                        this.setState({
+                            value: [...this.state.value, this.state.value.length],
+                            label: [...this.state.label, 'New option']
+                        })
+                    }}>
+                        Add option
+                    </Button> :
+                    null
+                }
+            </Item>
+            <Item>
+                <Button onClick={() => {
+                    this.props.onAddQuestion(this.props.title, this.state);
+                    this.setState({
+                        title: '',
+                            inputType: 'number',
+                            value: [],
+                            label: []
+                    });
+                }}
+                >
+                    Confirm
+                </Button>
+            </Item>
         </div>;
     }
 }

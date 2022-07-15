@@ -10,11 +10,9 @@ class CategoriesPage extends React.Component {
         return <Layout>
             <MyHeader title="Categorie" />
             <Content>
-                <CategoryCard title="Politic" />
-                <CategoryCard title="Eating and drinking" />
-                <CategoryCard title="Free time" />
-                <CategoryCard title="Study" />
-                <CategoryCard title="Other" />
+                {this.props.categories.map((c, i) =>
+                    <CategoryCard key={i} title={c} />
+                )}
             </Content>
         </Layout>;
     }

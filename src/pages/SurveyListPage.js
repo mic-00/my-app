@@ -6,6 +6,13 @@ import MyHeader from "../layout/MyHeader";
 const { Content } = Layout;
 
 class SurveyListPage extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            showDate: true,
+            showDesc: true
+        };
+    }
     render() {
         return <Layout>
             <MyHeader title={this.props.category} />

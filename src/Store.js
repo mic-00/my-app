@@ -16,7 +16,8 @@ const storePromise = firebaseConnection.getSurveys().then(function (surveys) {
                         description: action.payload.description,
                         category: action.payload.category,
                         image: null,
-                        questions: []
+                        questions: [],
+                        id: action.payload.id
                     }]
                 };
             }

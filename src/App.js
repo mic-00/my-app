@@ -31,13 +31,14 @@ class App extends React.Component {
                 });
                 this.addSurvey = () => {
                     let i = 0;
-                    while (this.getByTitle(`New survey #${i}`)) i++;
+                    while (this.getById(i)) i++;
                     const survey = {
-                        category: 'Nessuna',
-                        description: 'Descrizione',
+                        category: 'Other',
+                        description: 'Description',
                         src: null,
                         title: `New survey #${i}`,
-                        questions: []
+                        questions: [],
+                        id: i
                     }
                     firebaseConnection.addSurvey(survey).then(() =>
                         store.dispatch({type: 'ADD', payload: survey})
@@ -74,9 +75,21 @@ class App extends React.Component {
     getByTitle(title) {
         return this.state.surveys.find((s) => s.title === title);
     }
+    getById(id) {
+        return this.state.surveys.find((s) => s.id === id);
+    };
+    getCategories() {
+        let categories = [];
+        this.state.surveys.forEach((s) => {
+            if (!categories.find((cat) => cat === s.category))
+                categories.push(s.category);
+        });
+        return categories;
+    }
 
     render() {
-        const routeCategories = ['Other'].map((c, i) =>
+        console.log(this.state.surveys);
+        const routeCategories = this.getCategories().map((c, i) =>
             <Route key={i}
                    path={`/categories/${c}`}
                    element={
@@ -119,7 +132,7 @@ class App extends React.Component {
                             onAdd={this.addSurvey}
                         />}
                     />
-                    <Route path="/categories" element={<CategoriesPage />} />
+                    <Route path="/categories" element={<CategoriesPage categories={this.getCategories()} />} />
                     {routeCategories}
                     {routeSurveys}
                 </Routes>
