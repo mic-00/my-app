@@ -1,6 +1,6 @@
 import React from 'react';
-import {Button, Card, Image, Typography, Upload} from 'antd';
-import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import {Button, Card, Divider, Image, Typography, Upload} from 'antd';
+import {DeleteOutlined, EditOutlined, PlusOutlined} from '@ant-design/icons';
 import 'antd/dist/antd.css';
 import {Link} from "react-router-dom";
 
@@ -41,8 +41,13 @@ class SurveyCard extends React.Component {
                     Delete
                 </Button>,
                 <Link to={`/categories/${this.props.category}/${this.props.surveyId}`}>
-                    <Button>Edit</Button>
-                </Link>
+                    <Button
+                        icon={<EditOutlined />}
+                        shape="round"
+                    >
+                        Edit
+                    </Button>
+                </Link>,
             ]}
             cover={cover}
             hoverable={true}
@@ -56,8 +61,26 @@ class SurveyCard extends React.Component {
                 {this.props.title}
             </Title>}
         >
-            <Text className="survey-cat">{this.props.category}</Text>
-            <Text className="survey-desc">{this.props.description}</Text>
+            <Text
+                className="survey-cat"
+                editable={{
+                    onChange: (category) => this.props.onCategoryChange(this.props.title, category)
+                }}
+            >
+                {this.props.category}
+            </Text>
+            <Text
+                className="survey-desc"
+                editable={{
+                    onChange: (desc) => this.props.onDescriptionChange(this.props.title, desc)
+                }}
+            >
+                {this.props.description}
+            </Text>
+            <Divider />
+            <Button className="reply-btn">
+                Reply
+            </Button>
         </Card>
     }
 }
